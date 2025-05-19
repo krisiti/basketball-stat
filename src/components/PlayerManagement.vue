@@ -88,18 +88,87 @@
       </el-form>
     </el-card>
     
+    <!-- 已选球员展示 -->
+    <div class="selected-players-container">
+      <!-- 红队已选球员 -->
+      <el-card class="selected-players-card" shadow="hover">
+        <template #header>
+          <div class="card-header">
+            <span>
+              <el-icon color="#F56C6C"><Basketball /></el-icon>
+              红队已选球员 ({{ redTeamPlayers.length }})
+            </span>
+          </div>
+        </template>
+        
+        <el-empty v-if="redTeamPlayers.length === 0" description="暂无已选球员">
+          <template #image>
+            <el-icon class="empty-icon"><User /></el-icon>
+          </template>
+        </el-empty>
+        
+        <div class="player-tags" v-else>
+          <el-tag
+            v-for="player in redTeamPlayers"
+            :key="`red-${player.number}`"
+            class="player-tag"
+            closable
+            :disable-transitions="false"
+            type="danger"
+            @close="onRemovePlayer(player)"
+            effect="light"
+          >
+            <span class="tag-number">{{ player.number }}</span> {{ player.name }}
+          </el-tag>
+        </div>
+      </el-card>
+      
+      <!-- 黑队已选球员 -->
+      <el-card class="selected-players-card" shadow="hover">
+        <template #header>
+          <div class="card-header">
+            <span>
+              <el-icon color="#409EFF"><Basketball /></el-icon>
+              黑队已选球员 ({{ blackTeamPlayers.length }})
+            </span>
+          </div>
+        </template>
+        
+        <el-empty v-if="blackTeamPlayers.length === 0" description="暂无已选球员">
+          <template #image>
+            <el-icon class="empty-icon"><User /></el-icon>
+          </template>
+        </el-empty>
+        
+        <div class="player-tags" v-else>
+          <el-tag
+            v-for="player in blackTeamPlayers"
+            :key="`black-${player.number}`"
+            class="player-tag"
+            closable
+            :disable-transitions="false"
+            type="primary"
+            @close="onRemovePlayer(player)"
+            effect="light"
+          >
+            <span class="tag-number">{{ player.number }}</span> {{ player.name }}
+          </el-tag>
+        </div>
+      </el-card>
+    </div>
+    
     <!-- 预设球员池 -->
     <el-card class="player-pool-card" shadow="hover">
       <template #header>
         <div class="card-header">
           <span><el-icon><UserFilled /></el-icon> 预设球员池</span>
-          <span class="player-count" v-if="gameStore.availablePresetPlayers.length > 0">
-            共 {{ gameStore.availablePresetPlayers.length }} 名球员
+          <span class="player-count">
+            共 {{ gameStore.presetPlayers.length }} 名球员
           </span>
         </div>
       </template>
       
-      <el-empty v-if="gameStore.availablePresetPlayers.length === 0" description="没有可用的预设球员">
+      <el-empty v-if="gameStore.presetPlayers.length === 0" description="没有可用的预设球员">
         <template #image>
           <el-icon class="empty-icon"><User /></el-icon>
         </template>
@@ -107,33 +176,36 @@
       
       <div class="pool-players" v-else>
         <el-card
-          v-for="player in gameStore.availablePresetPlayers" 
+          v-for="player in gameStore.presetPlayers" 
           :key="player.id"
           class="player-card"
+          :class="{ 'player-card-disabled': isPlayerSelected(player.id) }"
           shadow="hover"
         >
           <div class="player-card-content">
             <div class="player-badge">{{ player.number }}</div>
             <div class="player-name">{{ player.name }}</div>
             <div class="pool-actions">
-              <el-tooltip content="添加到红队" placement="top" :show-after="300">
+              <el-tooltip :content="isPlayerSelected(player.id) ? '已选择' : '添加到红队'" placement="top" :show-after="300">
                 <el-button 
                   circle
                   size="small" 
                   type="danger" 
                   @click="addPresetPlayer(player.id, '红队')"
+                  :disabled="isPlayerSelected(player.id)"
                 >
-                  <el-icon><Plus /></el-icon>
+                  <el-icon><Plus v-if="!isPlayerSelected(player.id)" /><Check v-else /></el-icon>
                 </el-button>
               </el-tooltip>
-              <el-tooltip content="添加到黑队" placement="top" :show-after="300">
+              <el-tooltip :content="isPlayerSelected(player.id) ? '已选择' : '添加到黑队'" placement="top" :show-after="300">
                 <el-button 
                   circle
                   size="small" 
                   type="primary" 
                   @click="addPresetPlayer(player.id, '黑队')"
+                  :disabled="isPlayerSelected(player.id)"
                 >
-                  <el-icon><Plus /></el-icon>
+                  <el-icon><Plus v-if="!isPlayerSelected(player.id)" /><Check v-else /></el-icon>
                 </el-button>
               </el-tooltip>
             </div>
@@ -145,10 +217,10 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useGameStore } from '../stores/gameStore';
 import { useToastStore } from '../stores/toastStore';
-import { User, UserFilled, Plus, Basketball, InfoFilled } from '@element-plus/icons-vue';
+import { User, UserFilled, Plus, Basketball, InfoFilled, Delete, Check } from '@element-plus/icons-vue';
 
 const gameStore = useGameStore();
 const toastStore = useToastStore();
@@ -162,6 +234,18 @@ const playerForm = reactive({
   name: '',
   number: '',
   team: '红队'
+});
+
+// 计算属性：获取红队球员
+const redTeamPlayers = computed(() => {
+  return gameStore.players.filter(player => player.team === '红队')
+    .sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
+});
+
+// 计算属性：获取黑队球员
+const blackTeamPlayers = computed(() => {
+  return gameStore.players.filter(player => player.team === '黑队')
+    .sort((a, b) => (Number(a.number) || 0) - (Number(b.number) || 0));
 });
 
 const rules = {
@@ -251,6 +335,20 @@ const addPresetPlayer = async (presetId, team) => {
     toastStore.error(errorMessage.value);
   }
 };
+
+// 移除球员
+const onRemovePlayer = async (player) => {
+  try {
+    await gameStore.removePlayer(player);
+  } catch (error) {
+    errorMessage.value = '移除球员失败: ' + (error.message || '未知错误');
+    toastStore.error(errorMessage.value);
+  }
+};
+
+const isPlayerSelected = (presetId) => {
+  return gameStore.players.some(player => player.presetId === presetId);
+};
 </script>
 
 <style scoped>
@@ -258,7 +356,7 @@ const addPresetPlayer = async (presetId, team) => {
   margin-bottom: 20px;
 }
 
-.add-player-card, .player-pool-card {
+.add-player-card, .player-pool-card, .selected-players-card {
   margin-bottom: 15px;
   border-radius: 8px;
   transition: all 0.3s;
@@ -334,9 +432,19 @@ const addPresetPlayer = async (presetId, team) => {
   border: 1px solid #EBEEF5;
 }
 
+.player-card-disabled {
+  opacity: 0.6;
+  background-color: #f8f8f8;
+}
+
 .player-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.player-card-disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .player-card-content {
@@ -373,6 +481,38 @@ const addPresetPlayer = async (presetId, team) => {
   color: #C0C4CC;
 }
 
+/* 已选球员展示区样式 */
+.selected-players-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.player-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 5px;
+}
+
+.player-tag {
+  margin-right: 0;
+  margin-bottom: 0;
+  font-size: 14px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.tag-number {
+  font-weight: bold;
+  margin-right: 5px;
+  font-size: 1em;
+  color: inherit;
+  opacity: 0.8;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .form-row {
@@ -385,6 +525,10 @@ const addPresetPlayer = async (presetId, team) => {
   
   .pool-players {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .selected-players-container {
+    grid-template-columns: 1fr;
   }
 }
 </style> 
