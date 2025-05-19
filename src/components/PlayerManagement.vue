@@ -75,16 +75,6 @@
           class="error-alert"
           @close="errorMessage = ''"
         />
-        
-        <el-alert
-          v-if="successMessage"
-          :title="successMessage"
-          type="success"
-          closable
-          show-icon
-          class="success-alert"
-          @close="successMessage = ''"
-        />
       </el-form>
     </el-card>
     
@@ -295,13 +285,13 @@ const addPlayer = async () => {
       playerForm.name = '';
       playerForm.number = '';
       // 保留所选队伍不重置
-      successMessage.value = `已添加 ${playerForm.team} 队员: ${result.player?.name || ''}`;
+      successMessage.value = `✅ 已添加${playerForm.team === '红队' ? '红' : '黑'}队球员: ${result.player?.name || ''}`;
       toastStore.success(successMessage.value);
       
       // 延迟关闭成功消息
       setTimeout(() => {
         successMessage.value = '';
-      }, 3000);
+      }, 5000); // 延长显示时间到5秒
     } else {
       errorMessage.value = result.message;
     }
@@ -322,13 +312,15 @@ const addPresetPlayer = async (presetId, team) => {
       errorMessage.value = result.message;
       toastStore.error(result.message);
     } else {
-      successMessage.value = `已添加 ${team} 预设队员: ${result.player?.name || ''}`;
+      // 设置更明显的成功消息
+      const presetName = gameStore.presetPlayers.find(p => p.id === presetId)?.name || '';
+      successMessage.value = `✅ 已添加${team === '红队' ? '红' : '黑'}队球员: ${presetName}`;
       toastStore.success(successMessage.value);
       
       // 延迟关闭成功消息
       setTimeout(() => {
         successMessage.value = '';
-      }, 3000);
+      }, 5000); // 延长显示时间到5秒
     }
   } catch (error) {
     errorMessage.value = '添加预设球员失败: ' + (error.message || '未知错误');
@@ -354,6 +346,19 @@ const isPlayerSelected = (presetId) => {
 <style scoped>
 .player-management {
   margin-bottom: 20px;
+  position: relative;
+}
+
+.global-success-alert {
+  margin-bottom: 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.error-alert {
+  margin-top: 15px;
+  border-radius: 4px;
 }
 
 .add-player-card, .player-pool-card, .selected-players-card {
@@ -408,11 +413,6 @@ const isPlayerSelected = (presetId) => {
   height: 40px;
   line-height: 40px;
   padding: 0 11px;
-}
-
-.error-alert, .success-alert {
-  margin-top: 15px;
-  border-radius: 4px;
 }
 
 .player-count {
