@@ -2,7 +2,7 @@
   <div class="config-container">
     <div class="config-header">
       <div class="header-content">
-        <h2>系统配置</h2>
+        <h2>球员配置</h2>
       </div>
       <div class="header-actions">
         <el-button size="small" type="primary" @click="goBack">返回主页</el-button>

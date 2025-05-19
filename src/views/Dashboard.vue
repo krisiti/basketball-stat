@@ -14,7 +14,7 @@
       </div>
       <div class="header-actions">
         <el-button size="small" type="primary" @click="goToConfig">
-          <el-icon><Setting /></el-icon> 系统配置
+          <el-icon><Setting /></el-icon> 球员配置
         </el-button>
         <el-button size="small" type="danger" @click="logout">退出登录</el-button>
       </div>
