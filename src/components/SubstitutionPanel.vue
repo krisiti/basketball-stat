@@ -189,10 +189,6 @@ const togglePlayer = async (player) => {
   transition: all 0.3s;
 }
 
-.player-btn:hover {
-  transform: translateX(5px);
-}
-
 .player-badge {
   width: 100%;
   display: flex;
