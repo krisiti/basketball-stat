@@ -6,7 +6,7 @@ import { useToastStore } from './toastStore';
 
 // 数据库常量
 const DB_NAME = 'BasketballStatsDB';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 const STORE_NAME = 'gameData';
 const DETAIL_STORE_NAME = 'gameDetails';
 

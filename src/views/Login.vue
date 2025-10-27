@@ -60,7 +60,7 @@ const handleLogin = () => {
         loading.value = true
         
         // Hardcoded credentials check
-        if (loginForm.username === 'bigo' && loginForm.password === '12345678') {
+        if (loginForm.username === 'hotshot' && loginForm.password === 'hotshot123456') {
           setTimeout(() => {
             localStorage.setItem('isAuthenticated', 'true')
             router.push('/dashboard')

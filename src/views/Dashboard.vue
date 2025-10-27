@@ -25,6 +25,7 @@
       <SubstitutionPanel />
       <TeamSection team="红队" :color="'red'" />
       <TeamSection team="黑队" :color="'blue'" />
+      <ScoreDifferenceChart />
       <DetailSection />
     </div>
   </div>
@@ -38,6 +39,7 @@ import GameControls from '../components/GameControls.vue';
 import ExportPanel from '../components/ExportPanel.vue';
 import SubstitutionPanel from '../components/SubstitutionPanel.vue';
 import TeamSection from '../components/TeamSection.vue';
+import ScoreDifferenceChart from '../components/ScoreDifferenceChart.vue';
 import DetailSection from '../components/DetailSection.vue';
 import { Setting } from '@element-plus/icons-vue';
 
@@ -92,9 +94,5 @@ h2 {
 
 .db-status {
   margin-left: 10px;
-}
-
-.app-content {
-  /* Your existing app content styles */
 }
 </style> 
