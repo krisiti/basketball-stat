@@ -36,7 +36,7 @@ export const useGameStore = defineStore('game', () => {
   const presetPlayers = ref([
     { id: 1, name: '郑方庆', number: '0' },
     { id: 2, name: '晓涛', number: '00' },
-    { id: 3, name: '硕华', number: '1' },
+    { id: 3, name: '佳鑫', number: '17' },
     { id: 4, name: '文灏', number: '2' },
     { id: 5, name: '楚放', number: '3' },
     { id: 6, name: '爱文', number: '5' },
@@ -51,14 +51,14 @@ export const useGameStore = defineStore('game', () => {
     { id: 15, name: '龙腾', number: '16' },
     { id: 16, name: '锐斌', number: '20' },
     { id: 17, name: '鹏东', number: '22' },
-    { id: 18, name: '森辉', number: '23' },
+    { id: 18, name: '钲烨', number: '99' },
     { id: 19, name: '郁涛', number: '30' },
     { id: 20, name: '伯韬', number: '31' },
     { id: 21, name: '屹剑', number: '33' },
     { id: 22, name: '张铖', number: '34' },
     { id: 23, name: '桂亮', number: '35' },
-    { id: 24, name: '陈炯', number: '36' },
-    { id: 25, name: '健辉', number: '77' },
+    { id: 24, name: '洪鹏', number: '36' },
+    { id: 25, name: '廖程', number: '23' },
     { id: 26, name: '🐶哥', number: '96' },
   ]);
 

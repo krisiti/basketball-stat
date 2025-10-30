@@ -77,46 +77,50 @@ const exportExcel = () => {
 // 导出数据库
 const exportDB = async () => {
   try {
-    // 从存储中获取数据
-    await gameStore.saveData(); // 确保先保存最新数据
-    
-    // 模拟IndexedDB事务，将数据库中的内容提取出来
-    const db = await window.indexedDB.open('BasketballStatsDB', 6);
-    
-    db.onsuccess = function(event) {
-      const database = event.target.result;
-      const transaction = database.transaction(['gameData', 'gameDetails'], 'readonly');
-      const gameStore = transaction.objectStore('gameData');
-      const detailStore = transaction.objectStore('gameDetails');
-      
-      const gameRequest = gameStore.getAll();
-      const detailRequest = detailStore.getAll();
-      
-      gameRequest.onsuccess = function() {
-        const gameData = gameRequest.result;
-        
-        detailRequest.onsuccess = function() {
-          const detailData = detailRequest.result;
-          
-          const data = {
-            game: gameData,
-            details: detailData
-          };
-          
-          // 创建并下载文件
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `basketball_stats_${new Date().toISOString().slice(0, 10)}.json`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          toastStore.success('数据库导出成功');
-        };
+    // 确保先保存最新数据
+    await gameStore.saveData();
+
+    // 打开 IndexedDB（版本号需与 store 保持一致：7）
+    const database = await new Promise((resolve, reject) => {
+      const request = window.indexedDB.open('BasketballStatsDB', 7);
+      request.onerror = (e) => reject(e.target?.error || new Error('数据库打开失败'));
+      request.onupgradeneeded = () => {
+        // 仅为满足 API，不在导出流程中做结构变更
       };
-    };
+      request.onsuccess = (e) => resolve(e.target.result);
+    });
+
+    // 读取两个对象仓库的数据
+    const readAll = (db, storeName) => new Promise((resolve, reject) => {
+      try {
+        const tx = db.transaction([storeName], 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = (e) => reject(e.target?.error || new Error(`读取 ${storeName} 失败`));
+      } catch (err) {
+        reject(err);
+      }
+    });
+
+    const [gameData, detailData] = await Promise.all([
+      readAll(database, 'gameData'),
+      readAll(database, 'gameDetails')
+    ]);
+
+    const data = { game: gameData, details: detailData };
+
+    // 生成并下载文件
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `basketball_stats_${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toastStore.success('数据库导出成功');
   } catch (error) {
     console.error('导出数据库失败:', error);
     toastStore.error('导出数据库失败: ' + error.message);
