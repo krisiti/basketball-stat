@@ -13,6 +13,9 @@
         </el-tag>
       </div>
       <div class="header-actions">
+        <el-button size="small" type="success" @click="goToAnnualStats">
+          <el-icon><TrendCharts /></el-icon> 年度统计
+        </el-button>
         <el-button size="small" type="primary" @click="goToConfig">
           <el-icon><Setting /></el-icon> 球员配置
         </el-button>
@@ -42,6 +45,7 @@ import TeamSection from '../components/TeamSection.vue';
 import ScoreDifferenceChart from '../components/ScoreDifferenceChart.vue';
 import DetailSection from '../components/DetailSection.vue';
 import { Setting } from '@element-plus/icons-vue';
+import { TrendCharts } from '@element-plus/icons-vue';
 
 const router = useRouter();
 const dbStatus = ref('数据库加载中...');
@@ -62,6 +66,10 @@ onMounted(async () => {
 
 const goToConfig = () => {
   router.push('/configuration');
+}
+
+const goToAnnualStats = () => {
+  router.push('/annual-stats');
 }
 
 const logout = () => {

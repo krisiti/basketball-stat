@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Configuration from '../views/Configuration.vue'
+import AnnualStats from '../views/AnnualStats.vue'
 
 const routes = [
   {
@@ -23,6 +24,12 @@ const routes = [
     path: '/configuration',
     name: 'Configuration',
     component: Configuration,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/annual-stats',
+    name: 'AnnualStats',
+    component: AnnualStats,
     meta: { requiresAuth: true }
   }
 ]
